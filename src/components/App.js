@@ -13,17 +13,37 @@ function App() {
   const [filterByRating, setFilterByRating] = useState("");
 
   useEffect(() => {
-    Adapter.getShows().then((shows) => setShows(shows));
-  }, []);
+    try {
+          Adapter.getShows().then((shows) => setShows(shows));
 
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+  console.log(shows)
   useEffect(() => {
     window.scrollTo(0, 0);
   });
 
-  function handleSearch(e) {
-    setSearchTerm(e.target.value.toLowerCase());
+  function handleSearch(searchTerm) {
+    console.log(searchTerm)
+    setSearchTerm(searchTerm.toLowerCase());
+    filterShows(searchTerm)
   }
 
+ function filterShows(title) {
+    const filteredShows = [];
+
+    shows.filter((show) => {
+      if (show.name === title) {
+        filteredShows.push(show);
+      }
+      return null; // Returning null to satisfy the ESLint warning
+    });
+
+    console.log(filteredShows);
+    return filteredShows;
+  }
   function handleFilter(e) {
     e.target.value === "No Filter"
       ? setFilterByRating("")
@@ -39,10 +59,22 @@ function App() {
 
   let displayShows = shows;
   if (filterByRating) {
-    displayShows = displayShows.filter((s) => {
-      s.rating.average >= filterByRating;
+    displayShows = displayShows.filter((show) => {
+      return (
+        show.rating.average >= filterByRating
+      )
     });
   }
+
+  //   Array.prototype.unique = function () {
+  //   const arr = [];
+  //   for (let i = 0; i < this.length; i++) {
+  //     if (!arr.includes(this[i])) {
+  //       arr.push(this[i]);
+  //     }
+  //   }
+  //   return arr;
+  // };
 
   return (
     <div>
@@ -53,7 +85,7 @@ function App() {
       />
       <Grid celled>
         <Grid.Column width={5}>
-          {!!selectedShow ? (
+          {selectedShow ? (
             <SelectedShowContainer
               selectedShow={selectedShow}
               allEpisodes={episodes}
